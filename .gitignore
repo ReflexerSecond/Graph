@@ -1,0 +1,14 @@
+
+.idea/
+FileOutput.txt
+out/production/Graph/File.txt
+out/production/Graph/File2.txt
+out/production/Graph/META-INF/Graph.kotlin_module
+out/production/Graph/ru/nikulin/exercises/Exercises$AdvancedMethods.class
+out/production/Graph/ru/nikulin/exercises/Exercises.class
+out/production/Graph/ru/nikulin/exercises/Main.class
+out/production/Graph/ru/nikulin/exercises/WorkChecker.class
+out/production/Graph/ru/nikulin/graph/Graph$Edge.class
+out/production/Graph/ru/nikulin/graph/Graph.class
+out/production/Graph/ru/nikulin/graph/IGraph.class
+out/production/Graph/ru/nikulin/graph/IStringToCurrentTypeConverter.class
