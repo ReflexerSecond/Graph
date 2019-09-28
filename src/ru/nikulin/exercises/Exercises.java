@@ -1,18 +1,22 @@
 package ru.nikulin.exercises;
 
+import com.sun.nio.sctp.PeerAddressChangeNotification;
 import ru.nikulin.graph.Graph;
 import ru.nikulin.graph.IGraph;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class Exercises {
 
     public static String lastPath = null;
+
     public static void exerciseLaunch() {
         //exerciseOne("B");
         //exerciseTwo();
         //exerciseThree();
         //exerciseFour();
+        exerciseFive();
     }
 
     public static void exerciseOne(String node) {
@@ -76,8 +80,33 @@ public class Exercises {
         //заполнение графа
         var testGraph = AdvancedMethods.ThreeFourGraphGenerator();
         System.out.println(testGraph);
-        AdvancedMethods.hasRoad(testGraph,"D","A","F:D");
+        AdvancedMethods.hasRoad(testGraph, "D", "A", "F:D");
         System.out.println("Path is " + lastPath);
+    }
+
+    public static void exerciseFive() {
+        AdvancedMethods.titleShow("III Примм. Дан взвешенный неориентированный граф из N вершин и M ребер. Требуется найти в нем каркас минимального веса.");
+        var testGraph = new Graph<String>(false, true);
+        String edges = "ABCDEFGH";
+        for (int i = 0; i < edges.length(); i++) {
+            testGraph.addNode(Character.toString(edges.charAt(i)));
+        }
+        testGraph.addEdge("A", "B", 6);
+        testGraph.addEdge("A", "D", 25);
+        testGraph.addEdge("A", "H", 19);
+        testGraph.addEdge("B", "D", 11);
+        testGraph.addEdge("B", "C", 17);
+        testGraph.addEdge("C", "D", 8);
+        testGraph.addEdge("D", "E", 2);
+        testGraph.addEdge("E", "F", 21);
+        testGraph.addEdge("E", "G", 14);
+        testGraph.addEdge("G", "H", 9);
+
+        System.out.println("Result: " + AdvancedMethods.getSkeletonPrimm(testGraph,"A"));
+    }
+
+    public static void exerciseSix() {
+
     }
 
     public static class AdvancedMethods {
@@ -114,15 +143,38 @@ public class Exercises {
             return false;
         }
 
+        private static Graph<String> getSkeletonPrimm(Graph<String> graph, String startNode) {
+            var resultGraph = new Graph<String>(false, true);
+            Integer minWeight = 0;
+            var tempNode = startNode;
+            var tempEdge = resultGraph.edgeFactory(startNode);
+            resultGraph.addNode(startNode);
+
+            while (resultGraph.getNodes().size() < graph.getNodes().size()) {
+                minWeight = Integer.MAX_VALUE;
+                for (var node : resultGraph.getNodes()) {
+                    for (var edge : graph.getEdges(node)) {
+                        if ((!resultGraph.getNodes().contains(edge.getTargetNode())) && (edge.getWeight() <= minWeight)) {
+                            minWeight = edge.getWeight();
+                            tempEdge = edge;
+                            tempNode = node;
+                        }
+                    }
+                }
+                resultGraph.addNode(tempEdge.getTargetNode());
+                resultGraph.addEdge(tempNode, tempEdge.getTargetNode(), tempEdge.getWeight());
+            }
+
+            return resultGraph;
+        }
+
         private static Graph<String> ThreeFourGraphGenerator() {
             //заполнение графа
             var testGraph1 = new Graph<String>(true, false);
-            testGraph1.addNode("A");
-            testGraph1.addNode("B");
-            testGraph1.addNode("C");
-            testGraph1.addNode("D");
-            testGraph1.addNode("E");
-            testGraph1.addNode("F");
+            String edges = "ABCDEF";
+            for (int i = 0; i < edges.length(); i++) {
+                testGraph1.addNode(Character.toString(edges.charAt(i)));
+            }
             //testGraph1.addEdge("A", "B", null);
             testGraph1.addEdge("B", "D", null);
             testGraph1.addEdge("D", "E", null);
