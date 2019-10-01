@@ -36,6 +36,10 @@ public class Graph<T> implements IGraph<T> {
 
     //Getters
 
+    public boolean isDirected() { return isDirected; }
+
+    public boolean isHasWeight() { return hasWeight; }
+
     public ArrayList<Edge<T>> getEdges(T node) {
         return nodesMap.get(node);
     }
@@ -224,7 +228,7 @@ public class Graph<T> implements IGraph<T> {
         //Override this
     }
 
-    public Graph<T> getNotOriented() {
+    public Graph<T> getNotDirected() {
         if (!isDirected) return this;
 
         var temp = new Graph<>(this);

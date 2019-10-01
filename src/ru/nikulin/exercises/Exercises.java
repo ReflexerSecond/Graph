@@ -1,11 +1,12 @@
 package ru.nikulin.exercises;
 
-import com.sun.nio.sctp.PeerAddressChangeNotification;
 import ru.nikulin.graph.Graph;
 import ru.nikulin.graph.IGraph;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class Exercises {
 
@@ -16,7 +17,9 @@ public class Exercises {
         //exerciseTwo();
         //exerciseThree();
         //exerciseFour();
-        exerciseFive();
+        //exerciseFive();
+        //exerciseSix();
+        exerciseSeven();
     }
 
     public static void exerciseOne(String node) {
@@ -65,12 +68,12 @@ public class Exercises {
 
     public static void exerciseThree() {
         AdvancedMethods.titleShow("II 4 Выяснить, является ли граф связным.");
-        var testGraph1 = AdvancedMethods.ThreeFourGraphGenerator();
+        var testGraph1 = AdvancedMethods.ThreeFourSixGraphGenerator();
 
         System.out.println(testGraph1);
         AdvancedMethods.ThreeResult(testGraph1, "сильносвязный");
 
-        testGraph1 = testGraph1.getNotOriented();
+        testGraph1 = testGraph1.getNotDirected();
         System.out.println(testGraph1);
         AdvancedMethods.ThreeResult(testGraph1, "связный");
     }
@@ -78,7 +81,7 @@ public class Exercises {
     public static void exerciseFour() {
         AdvancedMethods.titleShow("II 9 Найти путь, соединяющий вершины u и v и не проходящий через заданное подмножество вершин V");
         //заполнение графа
-        var testGraph = AdvancedMethods.ThreeFourGraphGenerator();
+        var testGraph = AdvancedMethods.ThreeFourSixGraphGenerator();
         System.out.println(testGraph);
         AdvancedMethods.hasRoad(testGraph, "D", "A", "F:D");
         System.out.println("Path is " + lastPath);
@@ -102,15 +105,44 @@ public class Exercises {
         testGraph.addEdge("E", "G", 14);
         testGraph.addEdge("G", "H", 9);
 
-        System.out.println("Result: " + AdvancedMethods.getSkeletonPrimm(testGraph,"A"));
+        System.out.println("Result: " + AdvancedMethods.getSkeletonPrimm(testGraph, "A"));
     }
 
     public static void exerciseSix() {
+        AdvancedMethods.titleShow("Веса IV а. Дейкстра. Вывести длины кратчайших путей для всех пар вершин.");
+        var testGraph = new Graph<String>(false, true);
+        String nodes = "ABCDE";
+        for (int i = 0; i < nodes.length(); i++) {
+            testGraph.addNode(Character.toString(nodes.charAt(i)));
+        }
+        testGraph.addEdge("A", "B", 5);
+        testGraph.addEdge("A", "C", 2);
+        testGraph.addEdge("B", "C", 2);
+        testGraph.addEdge("C", "D", 8);
+        testGraph.addEdge("B", "E", 7);
+        testGraph.addEdge("E", "D", 10);
 
+        System.out.println(testGraph);
+        for (int i = 0; i < nodes.length(); i++) {
+            var result = AdvancedMethods.goHardLikeDijkstra(testGraph, Character.toString(nodes.charAt(i)));
+            result.keySet();
+            ArrayList res = new ArrayList();
+            res.addAll(result.keySet());
+            for (int j = (!testGraph.isDirected()) ? 1 + i : 1; j < result.keySet().size(); j++) {
+                if (result.get(res.get(j)) == Integer.MAX_VALUE)
+                    System.out.println(nodes.charAt(i) + ": " + res.get(j) + " -> There is no way");
+                else
+                    System.out.println(nodes.charAt(i) + ": " + res.get(j) + " = " + result.get(res.get(j)));
+            }
+        }
+    }
+
+    public static void exerciseSeven() {
+        AdvancedMethods.titleShow("Веса IV b. Флойд. Вывести длины кратчайших путей от u до v1 и v2.");
     }
 
     public static class AdvancedMethods {
-        private static void ThreeResult(Graph<String> testGraph1, String message) {
+        private static void ThreeResult(IGraph<String> testGraph1, String message) {
             boolean resault = true;
             var temp = testGraph1.getNodes().toArray();
             for (var i = 0; i < temp.length; i++) {
@@ -129,7 +161,7 @@ public class Exercises {
             System.out.println("\u001B[33m" + message + "\u001B[0m" + "\n");
         }
 
-        private static boolean hasRoad(Graph<String> graph, String node, String targetNode, String path) {
+        private static boolean hasRoad(IGraph<String> graph, String node, String targetNode, String path) {
             if (path.length() == 0) path += node;
             if (node.equals(targetNode)) {
                 lastPath = path;
@@ -143,7 +175,7 @@ public class Exercises {
             return false;
         }
 
-        private static Graph<String> getSkeletonPrimm(Graph<String> graph, String startNode) {
+        private static Graph<String> getSkeletonPrimm(IGraph<String> graph, String startNode) {
             var resultGraph = new Graph<String>(false, true);
             Integer minWeight = 0;
             var tempNode = startNode;
@@ -168,7 +200,7 @@ public class Exercises {
             return resultGraph;
         }
 
-        private static Graph<String> ThreeFourGraphGenerator() {
+        private static Graph<String> ThreeFourSixGraphGenerator() {
             //заполнение графа
             var testGraph1 = new Graph<String>(true, false);
             String edges = "ABCDEF";
@@ -183,6 +215,35 @@ public class Exercises {
             testGraph1.addEdge("F", "A", null);
             testGraph1.addEdge("D", "C", null);
             return testGraph1;
+        }
+
+        private static HashMap<String, Integer> goHardLikeDijkstra(IGraph<String> graph, String target) {
+            //Инициализируем
+            var result = new HashMap<String, Integer>();
+            for (var node : graph.getNodes()) {
+                result.put(node, Integer.MAX_VALUE);
+            }
+            result.put(target, 0);
+            HashSet<String> temp = new HashSet<>(result.keySet());
+
+            //Работа с графом. temp Массив непомеченных вершин
+            while (temp.size() > 0) {
+
+                //Находим непомеченный с минимальным весом
+                var tempMin = temp.iterator().next();
+                for (var i : temp) {
+                    if (result.get(i) < result.get(tempMin))
+                        tempMin = i;
+                }
+                //Заменяем большие веса на меньшие
+                for (var edge : graph.getEdges(tempMin)) {
+                    if ((result.get(tempMin) != Integer.MAX_VALUE) && ((edge.getWeight() + result.get(tempMin)) < result.get(edge.getTargetNode())))
+                        result.put(edge.getTargetNode(), edge.getWeight() + result.get(tempMin));
+                }
+                //"Помечаем" вершину
+                temp.remove(tempMin);
+            }
+            return result;
         }
     }
 }

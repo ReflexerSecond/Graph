@@ -19,7 +19,7 @@ public interface IGraph<T> {
 
     ArrayList<T> showParents(T node);
 
-    Graph<T> getNotOriented();
+    Graph<T> getNotDirected();
 
     boolean saveToFile(File file);
 }
