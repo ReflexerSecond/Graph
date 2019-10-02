@@ -4,6 +4,7 @@ import ru.nikulin.graph.Graph;
 import ru.nikulin.graph.IGraph;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,29 +106,18 @@ public class Exercises {
         testGraph.addEdge("E", "G", 14);
         testGraph.addEdge("G", "H", 9);
 
-        System.out.println("Result: " + AdvancedMethods.getSkeletonPrimm(testGraph, "A"));
+        System.out.println("Result: " + AdvancedMethods.getSkeletonPrim(testGraph, "A"));
     }
 
     public static void exerciseSix() {
         AdvancedMethods.titleShow("Веса IV а. Дейкстра. Вывести длины кратчайших путей для всех пар вершин.");
-        var testGraph = new Graph<String>(false, true);
-        String nodes = "ABCDE";
-        for (int i = 0; i < nodes.length(); i++) {
-            testGraph.addNode(Character.toString(nodes.charAt(i)));
-        }
-        testGraph.addEdge("A", "B", 5);
-        testGraph.addEdge("A", "C", 2);
-        testGraph.addEdge("B", "C", 2);
-        testGraph.addEdge("C", "D", 8);
-        testGraph.addEdge("B", "E", 7);
-        testGraph.addEdge("E", "D", 10);
+        var nodes = "ABCDE";
+        var testGraph = AdvancedMethods.SixSevenGraphGenerator("ABCDE", false);
 
         System.out.println(testGraph);
         for (int i = 0; i < nodes.length(); i++) {
             var result = AdvancedMethods.goHardLikeDijkstra(testGraph, Character.toString(nodes.charAt(i)));
-            result.keySet();
-            ArrayList res = new ArrayList();
-            res.addAll(result.keySet());
+            ArrayList<String> res = new ArrayList<>(result.keySet());
             for (int j = (!testGraph.isDirected()) ? 1 + i : 1; j < result.keySet().size(); j++) {
                 if (result.get(res.get(j)) == Integer.MAX_VALUE)
                     System.out.println(nodes.charAt(i) + ": " + res.get(j) + " -> There is no way");
@@ -139,6 +129,30 @@ public class Exercises {
 
     public static void exerciseSeven() {
         AdvancedMethods.titleShow("Веса IV b. Флойд. Вывести длины кратчайших путей от u до v1 и v2.");
+        var u = "A";
+        var v1 = "C";
+        var v2 = "D";
+        var testGraph = new Graph<String>(true, true);
+        var nodes = "ABCD";
+        for (int i = 0; i < nodes.length(); i++) {
+            testGraph.addNode(Character.toString(nodes.charAt(i)));
+        }
+        testGraph.addEdge("A", "B", 1);
+        testGraph.addEdge("A", "C", 6);
+        testGraph.addEdge("B", "C", 4);
+        testGraph.addEdge("B", "D", 1);
+        testGraph.addEdge("D", "C", 1);
+        ArrayList<String> resTemp = new ArrayList<>(testGraph.getNodes());
+        var result = AdvancedMethods.goHardLikeFloyd(testGraph, resTemp);
+        System.out.println(testGraph + "\n" + "U(" + u + ") -> V1(" + v1 + ") = " + result[resTemp.indexOf(u)][resTemp.indexOf(v1)] + "\n" +
+                "U(" + u + ") -> V1(" + v2 + ") = " + result[resTemp.indexOf(u)][resTemp.indexOf(v2)]);
+
+        /*for (int i = 0; i < result.length; i++) {
+            for (int j = 0; j < result.length; j++) {
+                System.out.print(((result[i][j] == null) ? "N" : result[i][j]) + " ");
+            }
+            System.out.println();
+        }*/
     }
 
     public static class AdvancedMethods {
@@ -175,7 +189,7 @@ public class Exercises {
             return false;
         }
 
-        private static Graph<String> getSkeletonPrimm(IGraph<String> graph, String startNode) {
+        private static Graph<String> getSkeletonPrim(IGraph<String> graph, String startNode) {
             var resultGraph = new Graph<String>(false, true);
             Integer minWeight = 0;
             var tempNode = startNode;
@@ -217,6 +231,21 @@ public class Exercises {
             return testGraph1;
         }
 
+        private static Graph<String> SixSevenGraphGenerator(String nodesT, boolean isDirected) {
+            var testGraph = new Graph<String>(isDirected, true);
+            String nodes = nodesT;
+            for (int i = 0; i < nodes.length(); i++) {
+                testGraph.addNode(Character.toString(nodes.charAt(i)));
+            }
+            testGraph.addEdge("A", "B", 5);
+            testGraph.addEdge("A", "C", 2);
+            testGraph.addEdge("B", "C", 2);
+            testGraph.addEdge("C", "D", 8);
+            testGraph.addEdge("B", "E", 7);
+            testGraph.addEdge("E", "D", 10);
+            return testGraph;
+        }
+
         private static HashMap<String, Integer> goHardLikeDijkstra(IGraph<String> graph, String target) {
             //Инициализируем
             var result = new HashMap<String, Integer>();
@@ -245,5 +274,33 @@ public class Exercises {
             }
             return result;
         }
+
+        private static Integer[][] goHardLikeFloyd(IGraph<String> graph, ArrayList<String> nodes) {
+            Integer[][] resultArray = new Integer[nodes.size()][nodes.size()];
+            resultArray[0][0] = 0;
+            for (var node : nodes) {
+                for (var edge : graph.getEdges(node)) {
+                    resultArray[nodes.indexOf(node)][nodes.indexOf(edge.getTargetNode())] = edge.getWeight();
+                }
+            }
+
+            for (int i = 0; i < nodes.size(); i++) {
+                for (int j = 0; j < nodes.size(); j++) {
+                    if (resultArray[i][j] != null) {
+                        for (int k = 0; k < nodes.size(); k++) {
+                            if (k == j) {
+                                resultArray[k][k] = 0;
+                            } else if (resultArray[k][i] != null && k != i && j != i &&
+                                    (resultArray[k][j] == null || (resultArray[k][j] > resultArray[k][i] + resultArray[i][j]))) {
+                                resultArray[k][j] = resultArray[k][i] + resultArray[i][j];
+                            }
+                        }
+                    }
+                }
+            }
+
+            return resultArray;
+        }
+
     }
 }
