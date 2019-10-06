@@ -4,10 +4,7 @@ import ru.nikulin.graph.Graph;
 import ru.nikulin.graph.IGraph;
 
 import java.io.File;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public class Exercises {
 
@@ -20,7 +17,8 @@ public class Exercises {
         //exerciseFour();
         //exerciseFive();
         //exerciseSix();
-        exerciseSeven();
+        //exerciseSeven();
+        exerciseEight();
     }
 
     public static void exerciseOne(String node) {
@@ -153,6 +151,25 @@ public class Exercises {
             }
             System.out.println();
         }*/
+    }
+
+    public static void exerciseEight() {
+        AdvancedMethods.titleShow("Веса IV с. Форд-Беллман. 18 Вывести цикл отрицательного веса, если он есть");
+        var testGraph = new Graph<Integer>(true, true);
+        for (int i = 0; i < 5; i++) {
+            testGraph.addNode(i);
+        }
+        testGraph.addEdge(0, 1, 2);
+        testGraph.addEdge(0, 3, 7);
+        testGraph.addEdge(0, 2, 6);
+        testGraph.addEdge(1, 3, 3);
+        testGraph.addEdge(1, 4, 6);
+        testGraph.addEdge(2, 4, 1);
+        testGraph.addEdge(3, 4, 5);
+        //testGraph.addEdge(3, 4, -5);
+        //testGraph.addEdge(4, 3, -1);
+        //testGraph.addEdge(1, 1, -10);
+        AdvancedMethods.findNegativeWeightCycleWithBellmanFord(testGraph, 0);
     }
 
     public static class AdvancedMethods {
@@ -302,5 +319,71 @@ public class Exercises {
             return resultArray;
         }
 
+        private static void findNegativeWeightCycleWithBellmanFord(IGraph<Integer> testGraph, Integer source) {
+            // ToDo Refactor me!!!
+            // tempTable содержит вершину как ключ и (вес пути, путь) как значение
+
+            var tempTable = new HashMap<Integer, AbstractMap.SimpleEntry<Integer, String>>();
+            var edges = new ArrayList<AbstractMap.SimpleEntry<Integer, Graph<Integer>.Edge<Integer>>>();
+            var temp = tempTable.values().toString();
+            for (var i : testGraph.getNodes()) {
+                tempTable.put(i, new AbstractMap.SimpleEntry<>(null, ""));
+                for (var edge : testGraph.getEdges(i)) {
+                    edges.add(new AbstractMap.SimpleEntry<>(i, edge));
+                }
+            }
+            tempTable.put(source, new AbstractMap.SimpleEntry<>(0, ""));
+
+            //собственно алгоритм тут
+            // Раскомментить Чтобы увидеть шаги (1,2)
+            //1 System.out.println("Формат: Вершина=ВесМинимальногоПути=МинимальныйПуть");
+            Integer nodeWeight, targetNode, targetWeight;
+            for (int i = 1; i < tempTable.keySet().size() + 1; i++) {
+
+                //2 System.out.println(tempTable);
+                for (var edge : edges) {
+
+                    //Константы для удобства
+                    nodeWeight = tempTable.get(edge.getKey()).getKey();
+                    targetNode = edge.getValue().getTargetNode();
+                    targetWeight = tempTable.get(targetNode).getKey();
+
+                    //Попытка релаксации
+                    if (nodeWeight != null && ((targetWeight == null) || ((nodeWeight + edge.getValue().getWeight() < targetWeight)))) {
+                        tempTable.put(targetNode, new AbstractMap.SimpleEntry<>(nodeWeight + edge.getValue().getWeight(),
+                                tempTable.get(edge.getKey()).getValue() + edge.getKey()));
+                    }
+                }
+                //если значения не поменялись значит дальнейшие итерации бессмыслены
+
+                if (temp.equals(tempTable.values().toString())) {
+                    break;
+                } else {
+                    //цикл намеренно делает на одну операцию больше чтобы распознать цикл отрицательного веса
+                    //цикл будет заметен по разнице в пути на прелпоследнем и последнем проходе у задействованных рёбер.
+                    if (i == tempTable.size()) {
+                        String[] tempForNodesPathes = temp.split(",");
+                        var currentNodesPathes = tempTable.values().toString().split(",");
+                        StringBuffer result = new StringBuffer();
+
+                        for (int j = 0; j < tempForNodesPathes.length; j++) {
+                            if (!tempForNodesPathes[j].equals(currentNodesPathes[j])) {
+                                for (var letter : tempForNodesPathes[j].toCharArray()) {
+                                    if ((tempForNodesPathes[j].substring(tempForNodesPathes[j].indexOf("=") + 1).replaceAll(Character.toString(letter), "").length()
+                                            < tempForNodesPathes[j].substring(tempForNodesPathes[j].indexOf("=") + 1).length() - 1)
+                                            && (result.indexOf(Character.toString(letter)) == -1)) {
+                                        result.append(letter);
+                                    }
+                                }
+                                if (result.length() > 0) break;
+                            }
+                        }
+                        System.out.println("Цикл отрицательного веса: " + result);
+                    }
+                }
+                temp = tempTable.values().toString();
+
+            }
+        }
     }
 }
