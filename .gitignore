@@ -1,4 +1,2 @@
-.idea/
 FileOutput.txt
-out/
-/resources/SevenGraph.jpg
+out/production/Graph/*
