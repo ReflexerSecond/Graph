@@ -250,6 +250,11 @@ public class Graph<T> implements IGraph<T> {
         return new Edge<>(obj, weight);
     }
 
+    public void editEdge(T node, Edge<T> edge, T targetNode, Integer weight) {
+        deleteEdge(node,edge);
+        addEdge(node,targetNode,weight);
+    }
+
     //Nested class
 
     public class Edge<T> {
