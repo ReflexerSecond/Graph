@@ -36,9 +36,13 @@ public class Graph<T> implements IGraph<T> {
 
     //Getters
 
-    public boolean isDirected() { return isDirected; }
+    public boolean isDirected() {
+        return isDirected;
+    }
 
-    public boolean isHasWeight() { return hasWeight; }
+    public boolean isHasWeight() {
+        return hasWeight;
+    }
 
     public ArrayList<Edge<T>> getEdges(T node) {
         return nodesMap.get(node);
@@ -46,6 +50,10 @@ public class Graph<T> implements IGraph<T> {
 
     public Set<T> getNodes() {
         return nodesMap.keySet();
+    }
+
+    public Integer getEdgesCount() {
+        return nodesMap.values().size();
     }
 
     //Constructors
@@ -93,7 +101,7 @@ public class Graph<T> implements IGraph<T> {
     public boolean addEdge(T node, T targetNode, Integer weight) {
         //Correct data check
         if (!nodesMap.containsKey(node) || !nodesMap.containsKey(targetNode) ||
-                (nodesMap.get(node).stream().anyMatch(x-> (x.getTargetNode() == targetNode)&&(x.getWeight()==weight)))) {
+                (nodesMap.get(node).stream().anyMatch(x -> (x.getTargetNode() == targetNode) && (x.getWeight() == weight)))) {
             return false;
         }
         //Not directed graph's edges has null weight
@@ -250,9 +258,11 @@ public class Graph<T> implements IGraph<T> {
         return new Edge<>(obj, weight);
     }
 
-    public void editEdge(T node, Edge<T> edge, T targetNode, Integer weight) {
-        deleteEdge(node,edge);
-        addEdge(node,targetNode,weight);
+    public void editEdge(T node, T targetNode, Integer weight) {
+        var tEdge = nodesMap.get(node).stream().filter(x -> x.getTargetNode() == targetNode).findFirst().get();
+        var tWeight = tEdge.weight;
+        deleteEdge(node, tEdge);
+        addEdge(node, targetNode, tWeight + weight);
     }
 
     //Nested class

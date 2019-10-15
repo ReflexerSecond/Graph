@@ -6,21 +6,20 @@ import ru.nikulin.graph.IGraph;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Exercises {
 
     public static String lastPath = null;
 
     public static void exerciseLaunch() {
-        //exerciseOne("B");
-        //exerciseTwo();
-        //exerciseThree();
-        //exerciseFour();
-        //exerciseFive();
-        //exerciseSix();
-        //exerciseSeven();
-        //exerciseEight();
+        exerciseOne("B");
+        exerciseTwo();
+        exerciseThree();
+        exerciseFour();
+        exerciseFive();
+        exerciseSix();
+        exerciseSeven();
+        exerciseEight();
         exerciseNine();
     }
 
@@ -57,7 +56,6 @@ public class Exercises {
                 for (var edge : testGraph1.getEdges(node)) {
                     if (testGraph2.getEdges(node).contains(edge)) {
                         result.addEdge(node, edge.getTargetNode(), null);
-                        ;
                     }
                 }
             }
@@ -176,20 +174,19 @@ public class Exercises {
     }
 
     public static void exerciseNine() {
-        AdvancedMethods.titleShow("Задача о потоках.");
+        AdvancedMethods.titleShow("V. Задача о потоках.");
         Graph<Integer> testGraph = new Graph<>(true, true);
         for (int i = 0; i < 5; i++) {
             testGraph.addNode(i + 1);
         }
 
         AdvancedMethods.addFlowNullEdge(testGraph, 1, 2, 20);
-        AdvancedMethods.addFlowNullEdge(testGraph, 2, 1, 0);
         AdvancedMethods.addFlowNullEdge(testGraph, 1, 3, 30);
         AdvancedMethods.addFlowNullEdge(testGraph, 1, 4, 10);
         AdvancedMethods.addFlowNullEdge(testGraph, 2, 5, 30);
         AdvancedMethods.addFlowNullEdge(testGraph, 2, 3, 40);
         AdvancedMethods.addFlowNullEdge(testGraph, 3, 5, 20);
-        AdvancedMethods.addFlowNullEdge(testGraph, 4, 3, 10);
+        AdvancedMethods.addFlowNullEdge(testGraph, 3, 4, 10);
         AdvancedMethods.addFlowNullEdge(testGraph, 4, 5, 20);
         System.out.println(testGraph);
         AdvancedMethods.goHardLikeFordFulkerson(testGraph, 1, 5);
@@ -409,43 +406,70 @@ public class Exercises {
             }
         }
 
-        private static void goHardLikeFordFulkerson(IGraph<Integer> graph, Integer startNode, Integer stopNode) {
+        private static void goHardLikeFordFulkerson(Graph<Integer> graph, Integer startNode, Integer stopNode) {
+            var testGraph = new Graph<>(graph);
+            Integer itherator;
+            Integer minWeight;
+            Integer result = 0;
+            Set<Graph<Integer>.Edge<Integer>> pathes;
             //Узел : Метка[Пропускная способность:Родитель]
             HashMap<Integer, AbstractMap.SimpleEntry<Integer, Integer>> marks = new HashMap<>();
-            var itherator = startNode;
-            //Пути из итерируемого узла
-            Set<Graph<Integer>.Edge<Integer>> pathes;
-            Integer minWeight = Integer.MAX_VALUE;
-            //Инициализация таблицы с маркировками
-            for (var i : graph.getNodes()) {
+            for (var i : testGraph.getNodes()) {
                 marks.put(i, null);
             }
-
-            do {
-                //Шаг 3. Ищем пути (непомеченные с положительными весами)
-                pathes = graph.getEdges(itherator).stream().filter(x -> (x.getWeight() > 0) && (marks.get(x.getTargetNode()) == null)).collect(Collectors.toSet());
-                //если находим, то
-                if (pathes.size() > 0) {
-                    //берём с максимальным весом
-                    var tempEdge = pathes.stream().max(Comparator.comparing(Graph.Edge::getWeight)).get();
-
-                    minWeight = Integer.min(minWeight,tempEdge.getWeight());
-                    //маркируем его вершину
-                    marks.put(tempEdge.getTargetNode(), new AbstractMap.SimpleEntry<>(tempEdge.getWeight(),itherator));
-                    //делаем его итерируемым (снова шаг 2)
-                    itherator = tempEdge.getTargetNode();
+            //Fixme
+            for (int i = 0; i < testGraph.getEdgesCount(); i++) {
+                //Шаг 1 итератор
+                itherator = startNode;
+                marks.clear();
+                minWeight = Integer.MAX_VALUE;
+                for (var j : testGraph.getNodes()) {
+                    marks.put(j, null);
                 }
+
+                do {
+                    //Шаг 2 Получим возможные к переходу пути
+                    pathes = testGraph.getEdges(itherator).stream().filter(
+                            //пропуск > 0
+                            x -> (x.getWeight() > 0) &&
+                                    //не маркированные
+                                    (marks.get(x.getTargetNode()) == null) &&
+                                    //в этой реализации стартовая вершина не имеет метки, поэтому проверяем напрямую
+                                    (x.getTargetNode() != startNode))
+                            .collect(Collectors.toSet());
+                    //Шаг 3 Находим узел с большей пропускной способностью
+                    if (pathes.size() > 0) {
+                        var tempEdge = pathes.stream().max(Comparator.comparing(Graph.Edge::getWeight)).get();
+                        //маркируем его вершину
+                        marks.put(tempEdge.getTargetNode(), new AbstractMap.SimpleEntry<>(tempEdge.getWeight(), itherator));
+                        //делаем его итерируемым
+                        itherator = tempEdge.getTargetNode();
+                        //ищем минимальный вес
+                        minWeight = Integer.min(minWeight, tempEdge.getWeight());
+                    } else {
+                        //Шаг 4 Откат. Метка остаётся. Не участвует в подсчёте пути, но исключает цикл
+                        if (itherator == startNode)
+                            //если итератор - исток, а возможных путей нет, значит граф уже преабразован как надо
+                            break;
+                        else
+                            itherator = marks.get(itherator).getValue();
+                    }
+                } while (itherator != stopNode);
+                if (itherator == startNode) break;
                 else {
-                    //TODO: здесь должен быть шаг 4
-                    break;
+                    System.out.print((result == 0) ? minWeight : " + " + minWeight);
+                    result += minWeight;
+                    while (marks.get(itherator) != null) {
+                        //Шаг 5
+                        testGraph.editEdge(itherator, marks.get(itherator).getValue(), minWeight);
+                        testGraph.editEdge(marks.get(itherator).getValue(), itherator, -minWeight);
+                        itherator = marks.get(itherator).getValue();
+                    }
                 }
-                if (itherator == stopNode) {
-                    //TODO: здесь должен быть проход по найденому пути, корректировка рёбер и пуск по новой.
-                    System.out.println(minWeight);
-                }
-            } while (!(itherator == stopNode));
-
-            System.out.println(marks);
+            }
+            // преобразованный граф (Чтобы сверить с примером)
+            // System.out.println(testGraph);
+            System.out.print(" = " + result);
         }
 
         private static void addFlowNullEdge(Graph<Integer> graph, Integer node, Integer targetNode, Integer weight) {
