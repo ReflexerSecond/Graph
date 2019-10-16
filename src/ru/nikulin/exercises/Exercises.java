@@ -4,6 +4,7 @@ import ru.nikulin.graph.Graph;
 import ru.nikulin.graph.IGraph;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -11,7 +12,7 @@ public class Exercises {
 
     public static String lastPath = null;
 
-    public static void exerciseLaunch() {
+    public static void exerciseLaunch() throws IOException {
         exerciseOne("B");
         exerciseTwo();
         exerciseThree();
@@ -21,6 +22,7 @@ public class Exercises {
         exerciseSeven();
         exerciseEight();
         exerciseNine();
+        exerciseTen();
     }
 
     public static void exerciseOne(String node) {
@@ -192,6 +194,13 @@ public class Exercises {
         AdvancedMethods.goHardLikeFordFulkerson(testGraph, 1, 5);
     }
 
+    public static void exerciseTen() throws IOException {
+
+        Process process = Runtime.getRuntime().exec("WFGraphVisualizer\\\\WFGraphVisualizer\\\\bin\\\\Release\\\\WFGraphVisualizer.exe "
+                + new File("FileOutput.txt").getAbsolutePath());
+        var e = process.getInputStream();
+        System.out.println(e.readAllBytes());
+    }
     public static class AdvancedMethods {
         private static void ThreeResult(IGraph<String> testGraph1, String message) {
             boolean resault = true;

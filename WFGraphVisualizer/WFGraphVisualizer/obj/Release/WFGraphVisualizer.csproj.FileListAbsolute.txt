@@ -1,0 +1,9 @@
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\bin\Release\WFGraphVisualizer.exe.config
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\bin\Release\WFGraphVisualizer.exe
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\bin\Release\WFGraphVisualizer.pdb
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\obj\Release\WFGraphVisualizer.Граф.resources
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\obj\Release\WFGraphVisualizer.Properties.Resources.resources
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\obj\Release\WFGraphVisualizer.csproj.GenerateResource.cache
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\obj\Release\WFGraphVisualizer.csproj.CoreCompileInputs.cache
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\obj\Release\WFGraphVisualizer.exe
+C:\Users\ZaxoD\OneDrive\Work\Projects\C#Projects\WFGraphVisualizer\WFGraphVisualizer\obj\Release\WFGraphVisualizer.pdb

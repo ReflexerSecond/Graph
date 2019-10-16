@@ -1,5 +1,5 @@
-false
+true
 true
 A B:2 C:3
-B C:1
+B C:1 A:1
 C
